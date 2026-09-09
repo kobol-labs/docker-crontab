@@ -40,6 +40,7 @@ The config file can be specifed in any of `json`, `toml`, or `yaml`, and can be 
 - `container`: Full container name or container alias if `project` is set. Ignored if `image` is included. Optional.
 - `dockerargs`: Command line docker `run`/`exec` arguments for full control (e.g. `--pull always`). Defaults to ` `.
 - `pull`: Pull policy before running image (`always`, `missing`, `never`, or `true` for always). Optional.
+- `rm`: Automatically remove the container when it exits (`true` to add `--rm`, `false` to preserve container). Defaults to `true` if `name` is set. Optional.
 - `trigger`: Array of docker-crontab subset objects. Subset includes: `image`,`project`,`container`,`command`,`dockerargs` 
 - `onstart`: Run the command on `crontab` container start, set to `true`. Optional, defaults to falsey.
 

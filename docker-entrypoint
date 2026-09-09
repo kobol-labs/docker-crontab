@@ -75,10 +75,19 @@ make_image_cmd() {
             DOCKERARGS="--pull ${PULL} ${DOCKERARGS}"
         fi
     fi
-    if [ ! -z "${NAME}" ]; then
+    RM=$(echo ${1} | jq -r 'select(.rm != null) | .rm')
+    if [ "${RM}" == "true" ]; then
         if [[ ! " ${DOCKERARGS} " =~ " --rm " ]]; then
-            DOCKERARGS="${DOCKERARGS} --rm"
+            DOCKERARGS="--rm ${DOCKERARGS}"
         fi
+    elif [ "${RM}" == "false" ]; then
+        DOCKERARGS=$(echo " ${DOCKERARGS} " | sed 's/ --rm / /g' | xargs)
+    elif [ ! -z "${NAME}" ]; then
+        if [[ ! " ${DOCKERARGS} " =~ " --rm " ]]; then
+            DOCKERARGS="--rm ${DOCKERARGS}"
+        fi
+    fi
+    if [ ! -z "${NAME}" ]; then
         DOCKERARGS="${DOCKERARGS} --name ${NAME} "
     fi
     if [ ! -z "${NETWORK}" ]; then DOCKERARGS="${DOCKERARGS} --network ${NETWORK} "; fi
