@@ -64,8 +64,23 @@ make_image_cmd() {
     ENVIRONMENT=$(echo ${1} | jq -r '(.environment // []) | map(" -e " + .) | join("")')
     # echo ${1} | jq -r '.environment | join("\n")' > ${PWD}/${NAME}.env
     # ENVIRONMENT=" --env-file ${PWD}/${NAME}.env"
+    PULL=$(echo ${1} | jq -r 'select(.pull != null) | .pull')
     if [ "${DOCKERARGS}" == "null" ]; then DOCKERARGS=; fi
-    if [ ! -z "${NAME}" ]; then DOCKERARGS="${DOCKERARGS} --rm --name ${NAME} "; fi
+    if [ "${PULL}" == "true" ] || [ "${PULL}" == "always" ]; then
+        if [[ ! " ${DOCKERARGS} " =~ " --pull " ]]; then
+            DOCKERARGS="--pull always ${DOCKERARGS}"
+        fi
+    elif [ ! -z "${PULL}" ] && [ "${PULL}" != "null" ] && [ "${PULL}" != "false" ]; then
+        if [[ ! " ${DOCKERARGS} " =~ " --pull " ]]; then
+            DOCKERARGS="--pull ${PULL} ${DOCKERARGS}"
+        fi
+    fi
+    if [ ! -z "${NAME}" ]; then
+        if [[ ! " ${DOCKERARGS} " =~ " --rm " ]]; then
+            DOCKERARGS="${DOCKERARGS} --rm"
+        fi
+        DOCKERARGS="${DOCKERARGS} --name ${NAME} "
+    fi
     if [ ! -z "${NETWORK}" ]; then DOCKERARGS="${DOCKERARGS} --network ${NETWORK} "; fi
     if [ ! -z "${VOLUMES}" ]; then DOCKERARGS="${DOCKERARGS}${VOLUMES}"; fi
     if [ ! -z "${ENVIRONMENT}" ]; then DOCKERARGS="${DOCKERARGS}${ENVIRONMENT}"; fi
